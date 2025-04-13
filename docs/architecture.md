@@ -11,8 +11,8 @@ Obsidian Noterは、Model Context Protocol (MCP)を活用したモジュール�
 1. **MCPサーバー**: クライアント（Claude AI）とのインターフェース
 2. **記事抽出エンジン**: URLやテキストからコンテンツを抽出
 3. **要約エンジン**: 
-   - 記事の要約: 抽出されたコンテンツを要約
-   - チャットの要約: 会話内容を分析・整理
+   - 記事の要約: 抽出されたコンテンツからルールベースの要約を生成
+   - チャット要約: 会話内容を分析・整理
 4. **Markdown変換**: 要約をObsidianで使いやすいMarkdown形式に変換
 
 ## データフロー
@@ -73,19 +73,23 @@ async def extract_from_url(url: str) -> str: ...
 
 #### 記事要約 (`summarizer.py`)
 
-- テキスト要約のロジック
-- AI APIとの統合（Anthropic Claude API等）
-- 要約品質の最適化
+- テキスト要約のロジック（ルールベース）
+- 重要な文の抽出と箇条書き化
+- 将来的な機能拡張としてAI API連携も可能
 
 ```python
 async def summarize_text(text: str, max_length: Optional[int] = None) -> str: ...
+
+# ルールベースの要約生成（APIキーなしで動作）
+def _generate_rule_based_summary(text: str, max_length: Optional[int] = None) -> str: ...
 ```
 
 #### チャット要約 (`chat_summarizer.py`)
 
-- チャット会話の解析
+- チャット会話の解析（パターンマッチング）
 - トピックとキーポイントの抽出
-- 議論の結論や合意点の特定
+- 単純なルールベースによる要約生成
+- 将来的な機能拡張としてより高度なAI API連携も可能
 
 ```python
 async def summarize_chat(chat_content: str) -> str: ...
@@ -111,9 +115,8 @@ def convert_chat_to_markdown(summary: str, source: str, file_name: Optional[str]
 1. 無効なURL
 2. アクセスできないウェブページ
 3. 記事内容の抽出失敗
-4. 要約APIのエラー
-5. チャット内容の解析エラー
-6. タイムアウト
+4. チャット内容の解析エラー
+5. タイムアウト
 
 各エラーは適切にハンドリングされ、ユーザーに明確なメッセージが表示されます。
 
@@ -122,7 +125,9 @@ def convert_chat_to_markdown(summary: str, source: str, file_name: Optional[str]
 アーキテクチャは以下の点で拡張可能です：
 
 1. **複数の入力形式**: URL、プレーンテキスト、チャット以外にもPDFやその他の形式に対応可能
-2. **要約エンジンの交換**: 異なるAI APIやアルゴリズムを使用可能
+2. **要約エンジンの拡張**: 
+   - 基本的なルールベース要約は組み込み済み
+   - オプションでAI API（Anthropic/OpenAI等）と統合可能
 3. **出力形式のカスタマイズ**: Markdownの構造やメタデータをカスタマイズ可能
 4. **バッチ処理**: 複数記事・複数会話の一括処理
 5. **チャット分析の高度化**: 感情分析やアクション項目の抽出など
@@ -130,18 +135,19 @@ def convert_chat_to_markdown(summary: str, source: str, file_name: Optional[str]
 ## 開発優先順位
 
 1. **フェーズ1**: 記事要約機能
-   - 基本的な記事抽出と要約
+   - 基本的な記事抽出と要約（API不要のルールベース実装）
    - Markdown変換
    - MCPサーバー統合
 
 2. **フェーズ2**: チャット要約機能
-   - チャット解析と要約
+   - チャット解析と要約（API不要のルールベース実装）
    - チャット専用のMarkdown変換
    - MCPサーバーへの統合
 
 3. **フェーズ3**: 機能拡張
    - ユーザー設定のカスタマイズ
    - 高度な抽出アルゴリズム
+   - オプションとしてのAI API連携
    - 追加のコンテンツ形式サポート
 
 ## 性能考慮事項
@@ -149,5 +155,4 @@ def convert_chat_to_markdown(summary: str, source: str, file_name: Optional[str]
 - ウェブスクレイピングのタイムアウト設定
 - 大きな記事のチャンク処理
 - 長いチャット履歴の効率的な処理
-- AI APIへのリクエスト最適化
-
+- オプションのAPI連携時の効率的なリクエスト処理

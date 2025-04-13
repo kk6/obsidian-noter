@@ -57,13 +57,12 @@ mcp install src/obsidian_noter/main.py --name "Obsidian Noter"
 
 3. Claude Desktopを起動し、新しいツールが利用可能になっていることを確認します
 
-### カスタム環境変数の設定
+### カスタム設定（オプション）
 
-APIキーなどの環境変数を設定する場合：
+必要に応じて環境変数を設定することができます：
 
 ```bash
 mcp install src/obsidian_noter/main.py --name "Obsidian Noter" \
-    -v ANTHROPIC_API_KEY=your_api_key \
     -v CUSTOM_OPTION=value
 ```
 
@@ -72,6 +71,18 @@ mcp install src/obsidian_noter/main.py --name "Obsidian Noter" \
 ```bash
 mcp install src/obsidian_noter/main.py --name "Obsidian Noter" -f .env
 ```
+
+### 外部API連携（オプション）
+
+より高度な要約機能を使用するには、以下のように外部APIとの連携を設定できます：
+
+```bash
+# Anthropic API連携を有効にする場合
+mcp install src/obsidian_noter/main.py --name "Obsidian Noter" \
+    -v ANTHROPIC_API_KEY=your_api_key
+```
+
+**注意**: 基本機能はAPIキーなしでも動作します。API連携はより高品質な要約が必要な場合のオプションです。
 
 ## トラブルシューティング
 
@@ -135,4 +146,3 @@ mcp uninstall "Obsidian Noter"
 ```bash
 uv pip uninstall obsidian-noter
 ```
-
