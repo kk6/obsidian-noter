@@ -75,6 +75,7 @@ Claude AIに以下のように指示するだけです：
 
 詳細については、以下のドキュメントを参照してください：
 
+- [要件定義](docs/requirements.md)
 - [インストール手順](docs/installation.md)
 - [使用方法](docs/usage.md)
 - [開発ガイド](docs/development.md)
