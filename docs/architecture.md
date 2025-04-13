@@ -156,3 +156,26 @@ def convert_chat_to_markdown(summary: str, source: str, file_name: Optional[str]
 - 大きな記事のチャンク処理
 - 長いチャット履歴の効率的な処理
 - オプションのAPI連携時の効率的なリクエスト処理
+
+## プロジェクト構造
+
+現在のプロジェクト構造は、直感的なアクセスと将来の拡張性を考慮しています：
+
+```
+obsidian-noter/
+├── obsidian_noter/            # メインコード（プロジェクト直下に配置）
+│   ├── __init__.py
+│   ├── main.py                # エントリーポイント
+│   ├── server.py              # MCPサーバー実装
+│   ├── summarizer.py          # 記事要約機能
+│   ├── chat_summarizer.py     # チャット要約機能
+│   ├── extractor.py           # 記事抽出機能
+│   ├── markdown.py            # Markdown変換
+│   └── utils.py               # ユーティリティ関数
+├── tests/                     # テストコード
+│   └── ...
+├── docs/                      # ドキュメント
+│   └── ...
+└── scripts/                   # ユーティリティスクリプト
+    └── ...
+```

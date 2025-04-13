@@ -42,13 +42,13 @@ uv pip install -e .
 ### Claude Desktopに統合
 
 ```bash
-mcp install src/obsidian_noter/main.py --name "Obsidian Noter"
+mcp install obsidian_noter/main.py --name "Obsidian Noter"
 ```
 
 ### 開発モードでテスト
 
 ```bash
-mcp dev src/obsidian_noter/main.py
+mcp dev obsidian_noter/main.py
 ```
 
 ## 使用例

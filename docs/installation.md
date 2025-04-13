@@ -52,7 +52,7 @@ Obsidian NoterをClaude Desktopに統合するには、MCPコマンドライン�
 2. 以下のコマンドを実行して、サーバーをインストールします：
 
 ```bash
-mcp install src/obsidian_noter/main.py --name "Obsidian Noter"
+mcp install obsidian_noter/main.py --name "Obsidian Noter"
 ```
 
 3. Claude Desktopを起動し、新しいツールが利用可能になっていることを確認します
@@ -62,14 +62,14 @@ mcp install src/obsidian_noter/main.py --name "Obsidian Noter"
 必要に応じて環境変数を設定することができます：
 
 ```bash
-mcp install src/obsidian_noter/main.py --name "Obsidian Noter" \
+mcp install obsidian_noter/main.py --name "Obsidian Noter" \
     -v CUSTOM_OPTION=value
 ```
 
 または環境変数ファイルを使用：
 
 ```bash
-mcp install src/obsidian_noter/main.py --name "Obsidian Noter" -f .env
+mcp install obsidian_noter/main.py --name "Obsidian Noter" -f .env
 ```
 
 ### 外部API連携（オプション）
@@ -78,7 +78,7 @@ mcp install src/obsidian_noter/main.py --name "Obsidian Noter" -f .env
 
 ```bash
 # Anthropic API連携を有効にする場合
-mcp install src/obsidian_noter/main.py --name "Obsidian Noter" \
+mcp install obsidian_noter/main.py --name "Obsidian Noter" \
     -v ANTHROPIC_API_KEY=your_api_key
 ```
 
@@ -108,7 +108,7 @@ Error: Cannot find MCP server...
 
 解決策:
 - パッケージが正しくインストールされていることを確認してください
-- パスが正しいことを確認してください: `src/obsidian_noter/main.py`
+- パスが正しいことを確認してください: `obsidian_noter/main.py`
 
 #### Claude Desktopとの接続エラー
 
@@ -117,7 +117,7 @@ Claude Desktopがサーバーに接続できない
 
 解決策:
 - Claude Desktopを再起動してみてください
-- サーバーを再インストールしてください: `mcp install src/obsidian_noter/main.py --name "Obsidian Noter" --force`
+- サーバーを再インストールしてください: `mcp install obsidian_noter/main.py --name "Obsidian Noter" --force`
 
 ### システム要件の確認
 

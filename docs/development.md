@@ -32,7 +32,7 @@ uv pip install -e ".[dev]"
 MCPの開発モードを使用して、サーバーをテストできます：
 
 ```bash
-mcp dev src/obsidian_noter/main.py
+mcp dev obsidian_noter/main.py
 ```
 
 これにより、MCPインスペクターが起動し、リアルタイムでサーバーとやり取りできます。
@@ -64,16 +64,15 @@ obsidian-noter/
 ├── .gitignore
 ├── README.md
 ├── pyproject.toml
-├── src/
-│   └── obsidian_noter/
-│       ├── __init__.py
-│       ├── main.py              # エントリーポイント
-│       ├── server.py            # MCPサーバー実装
-│       ├── summarizer.py        # 記事要約機能
-│       ├── chat_summarizer.py   # チャット要約機能（フェーズ2）
-│       ├── extractor.py         # 記事抽出機能
-│       ├── markdown.py          # Markdown変換
-│       └── utils.py             # ユーティリティ関数
+├── obsidian_noter/           # プロジェクトコード（直下に配置）
+│   ├── __init__.py
+│   ├── main.py              # エントリーポイント
+│   ├── server.py            # MCPサーバー実装
+│   ├── summarizer.py        # 記事要約機能
+│   ├── chat_summarizer.py   # チャット要約機能（フェーズ2）
+│   ├── extractor.py         # 記事抽出機能
+│   ├── markdown.py          # Markdown変換
+│   └── utils.py             # ユーティリティ関数
 └── tests/
     ├── __init__.py
     ├── test_server.py
