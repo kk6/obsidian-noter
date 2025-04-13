@@ -1,0 +1,172 @@
+name: Project Board Automation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, closed]
+  issues:
+    types: [opened, closed, assigned, labeled]
+
+jobs:
+  project_automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Automate Project Status
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 取得したプロジェクトIDとフィールドID
+            const projectId = "PVT_kwHOAAkYos4A2mtj"; // obsidian-noter プロジェクトID
+            const statusFieldId = "PVTSSF_lAHOAAkYos4A2mtjzgr4ieo"; // Status フィールドID
+            const STATUS = {
+              BACKLOG:     "f75ad846", // Backlog
+              READY:       "61e4505c", // Ready
+              IN_PROGRESS: "47fc9ee4", // In progress
+              IN_REVIEW:   "df73e18b", // In review
+              DONE:        "98236657"  // Done
+            };
+
+            async function getProjectItemId(issueNumber) {
+              let items = [];
+              let hasNextPage = true;
+              let endCursor = null;
+
+              while (hasNextPage) {
+                const result = await github.graphql(
+                  `
+                  query($projectId: ID!, $after: String) {
+                    node(id: $projectId) {
+                      ... on ProjectV2 {
+                        items(first: 100, after: $after) {
+                          nodes {
+                            id
+                            content {
+                              ... on Issue {
+                                number
+                              }
+                            }
+                          }
+                          pageInfo {
+                            hasNextPage
+                            endCursor
+                          }
+                        }
+                      }
+                    }
+                  }
+                  `,
+                  {
+                    projectId: projectId,
+                    after: endCursor,
+                  }
+                );
+
+                const pageItems = result.node.items.nodes;
+                items = items.concat(pageItems);
+                hasNextPage = result.node.items.pageInfo.hasNextPage;
+                endCursor = result.node.items.pageInfo.endCursor;
+              }
+
+              return items.find((i) => i.content?.number === issueNumber)?.id || null;
+            }
+
+            async function updateStatus(issueNumber, statusId) {
+              const itemId = await getProjectItemId(issueNumber);
+              if (!itemId) {
+                console.log(`❌ Issue #${issueNumber} not found in project.`);
+                return;
+              }
+
+              try {
+                await github.graphql(`
+                  mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+                    updateProjectV2ItemFieldValue(input: $input) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `, {
+                  input: {
+                    projectId,
+                    itemId,
+                    fieldId: statusFieldId,
+                    value: {
+                      singleSelectOptionId: statusId
+                    }
+                  }
+                });
+
+                console.log(`✅ Updated issue #${issueNumber} status.`);
+              } catch (error) {
+                console.log(`❌ Failed to update status for issue #${issueNumber}: ${error.message}`);
+              }
+            }
+
+            async function addIssueToProject(issueNodeId) {
+              try {
+                await github.graphql(`
+                  mutation($input: AddProjectV2ItemByIdInput!) {
+                    addProjectV2ItemById(input: $input) {
+                      item {
+                        id
+                      }
+                    }
+                  }
+                `, {
+                  input: {
+                    projectId,
+                    contentId: issueNodeId
+                  }
+                });
+
+                console.log(`✅ Issue added to project.`);
+              } catch (error) {
+                console.log(`❌ Failed to add issue to project: ${error.message}`);
+              }
+            }
+
+            const event = context.eventName;
+
+            if (event === "pull_request") {
+              const pr = context.payload.pull_request;
+              const body = pr.body || "";
+
+              // Closes #12 などをパースする
+              const matches = [...body.matchAll(/(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)/gi)];
+              const issueNumbers = matches.map(match => parseInt(match[1], 10));
+
+              for (const issueNumber of issueNumbers) {
+                if (context.payload.action === 'closed' && pr.merged) {
+                  await updateStatus(issueNumber, STATUS.DONE);
+                } else if (context.payload.action === 'opened') {
+                  await updateStatus(issueNumber, STATUS.IN_REVIEW);
+                }
+              }
+            }
+
+            if (event === "issues") {
+              const issue = context.payload.issue;
+
+              if (context.payload.action === "opened") {
+                await addIssueToProject(issue.node_id);
+                await updateStatus(issue.number, STATUS.BACKLOG);
+              }
+
+              if (context.payload.action === "assigned") {
+                await updateStatus(issue.number, STATUS.IN_PROGRESS);
+              }
+
+              if (context.payload.action === "labeled") {
+                const label = context.payload.label.name.toLowerCase();
+
+                if (label === "ready") {
+                  await updateStatus(issue.number, STATUS.READY);
+                }
+              }
+
+              if (context.payload.action === "closed") {
+                await updateStatus(issue.number, STATUS.DONE);
+              }
+            }
